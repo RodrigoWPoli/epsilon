@@ -44,45 +44,51 @@ const MessageForm = () => {
     );
     return decrypted;
   };
-  const binariseMessage = (text) => {
-    const textEncoder = new TextEncoder();
-    const arrayBuffer = textEncoder.encode(text);
-    return Array.from(new Uint8Array(arrayBuffer));
+  const binarizeMessage = (text) => {
+    return text
+      .split("")
+      .map((char) => char.charCodeAt(0).toString(2).padStart(8, "0"))
+      .join("");
   };
-  const deBinarizeMessage = (binaryArray) => {
-  const uint8Array = new Uint8Array(binaryArray);
-  const textDecoder = new TextDecoder();
-  return textDecoder.decode(uint8Array);
+  const deBinarizeMessage = (text) => {
+    const binaryArray = text.split(" ");
+
+    // Convert each 8-bit binary byte to its decimal equivalent and then to a character
+    const textArray = binaryArray.map((binaryByte) => {
+      const decimalValue = parseInt(binaryByte, 2);
+      return String.fromCharCode(decimalValue);
+    });
+
+    // Join the characters to form the original text
+    const originalText = textArray.join("");
+
+    return originalText;
   };
 
   const sendMessage = async (message) => {
-    const uint8Array = new Uint8Array(binaryMessage);
-    const blob = new Blob([uint8Array]);
-    const formData = new FormData();
-    formData.append('binaryMessage', blob, 'binaryMessage');
+    try {
+      // Send the binary message to the backend
+      const response = await fetch("/api/encode", {
+        method: "POST",
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({message}),
+      });
 
-  try {
-    // Send the binary message to the backend
-    const response = await fetch("/api/sendBinaryMessage", {
-      method: "POST",
-      body: formData,
-    });
-
-    // Handle the response from the backend as needed
-    const data = await response.json();
-    console.log('Response from backend:', data);
-  } catch (error) {
-    console.error("Error sending binary message:", error);
-  }
-
+      // Handle the response from the backend as needed
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      throw error;
+    }
   };
 
   const handleSendMessage = () => {
     const encryptedMessage = encryptMessage(message);
-    const binaryMessage = binariseMessage(encryptedMessage);
-    //send to backend
-    sendMessage(binaryMessage);
-
+    const binaryMessage = binarizeMessage(encryptedMessage);
+    const encodedMessage = sendMessage(binaryMessage);
 
     //receive from backend
     const deBinarizedMessage = deBinarizeMessage(binaryMessage);
