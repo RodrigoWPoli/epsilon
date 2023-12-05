@@ -4,17 +4,19 @@
 
 git clone  
 cd epsilon  
-npm install  
+
 
 
 ## Start front end:
 
-cd client
+cd client  
+npm install    
 
 ### `npm start`
 
 ## Start Back end:
 
-cd server
+cd server  
+npm install  
 
 ### `npm run dev`
