@@ -26,6 +26,7 @@ const MessageForm = () => {
   const [message, setMessage] = useState("");
   const [displayedMessage, setDisplayedMessage] = useState("");
   const [encryptedMessage, setEncryptedMessage] = useState("");
+  const [encodedMessage, setEncodedMessage] = useState("");
   const [binaryMessage, setBinaryMessage] = useState("");
   const secretKey = "your-secret-key"; // Replace with a secure method for key exchange
 
@@ -96,6 +97,7 @@ const MessageForm = () => {
     setEncryptedMessage(encryptedMessage);
     setBinaryMessage(binaryMessage);
     setDisplayedMessage(decryptedMessage);
+    setEncodedMessage(encodedMessage)
     setMessage("");
   };
   const styles = {

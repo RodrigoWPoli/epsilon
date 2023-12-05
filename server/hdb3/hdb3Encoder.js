@@ -1,34 +1,67 @@
-function encode(data) {
-  const hbd3Dict = {
-    "0000": "000V",
-    "0001": "001B",
-    "0010": "001V",
-    "0011": "010B",
-    "0100": "010V",
-    "0101": "011B",
-    "0110": "011V",
-    "0111": "100B",
-    1000: "100V",
-    1001: "101B",
-    1010: "101V",
-    1011: "110B",
-    1100: "110V",
-    1101: "111B",
-    1110: "111V",
-    1111: "000B",
-  };
+function AMIencoding(binaryMessage) {
+    let amiMessage = binaryMessage.split('').map(Number); // Convert binary string to array of numbers
+    let polarity = 1;
 
-  let encodedData = "";
-
-  data.forEach((binary) => {
-    const paddedBinary = padBinary(binary);
-    for (let i = 0; i < paddedBinary.length; i += 4) {
-      const chunk = paddedBinary.substring(i, i + 4);
-      encodedData += hbd3Dict[chunk];
+    for (let i = 0; i < amiMessage.length; i++) {
+        if (amiMessage[i] === 1) {
+            amiMessage[i] = polarity;
+            polarity *= -1;
+        }
     }
-  });
 
-  return encodedData;
+    return amiMessage;
+}
+
+function encode(message) {
+    const amiMessage = AMIencoding(message.slice());
+    let hdb3Message = [...amiMessage];
+
+    let zerosCounter = 0;
+    let polarity = 0;
+    let iterator = 0;
+
+    for (const bit of amiMessage) {
+        if (bit === 0) {
+            zerosCounter += 1;
+
+            if (zerosCounter === 4) {
+                zerosCounter = 0;
+                if (iterator === 3) {
+                    hdb3Message[iterator] = -1; // Preventing segFault
+                } else {
+                    hdb3Message[iterator] = hdb3Message[iterator - 4];
+                }
+
+                if (hdb3Message[iterator] === polarity) {
+                    hdb3Message[iterator] = hdb3Message[iterator] * -1;
+                    hdb3Message[iterator - 3] = hdb3Message[iterator];
+                    let i = iterator + 1;
+                    while (i < hdb3Message.length) {
+                        hdb3Message[i] = hdb3Message[i] * -1;
+                        i += 1;
+                    }
+                }
+
+                polarity = hdb3Message[iterator];
+            }
+        } else {
+            zerosCounter = 0;
+        }
+
+        iterator += 1;
+    }
+
+    const stringArray = hdb3Message.map((bit) => {
+        if (bit === 1) {
+            return '+';
+        } else if (bit === -1) {
+            return '-';
+        } else {
+            return '0';
+        }
+    });
+
+    return [stringArray.join(''), hdb3Message];
 }
 
 module.exports = {
