@@ -1,49 +1,49 @@
 function decode(message) {
-    const bitArray = [];
+  const bitArray = [];
 
-    for (const bit of message.join('')) {
-        if (bit === '+') {
-            bitArray.push(1);
-        } else if (bit === '-') {
-            bitArray.push(-1);
-        } else {
-            bitArray.push(0);
+  for (const bit of message) {
+    if (bit === "+") {
+      bitArray.push(1);
+    } else if (bit === "-") {
+      bitArray.push(-1);
+    } else {
+      bitArray.push(0);
+    }
+  }
+
+  const decodedMessage = [...bitArray];
+  let polarity = 0;
+  let iterator = 0;
+
+  while (iterator < bitArray.length) {
+    if (decodedMessage[iterator] !== 0) {
+      if (bitArray[iterator] === polarity) {
+        let i = iterator - 3;
+        while (i <= iterator) {
+          decodedMessage[i] = 0;
+          i += 1;
         }
+      }
+
+      polarity = decodedMessage[iterator];
     }
 
-    const decodedMessage = [...bitArray];
-    let polarity = 0;
-    let iterator = 0;
+    iterator += 1;
+  }
 
-    while (iterator < bitArray.length) {
-        if (decodedMessage[iterator] !== 0) {
-            if (bitArray[iterator] === polarity) {
-                let i = iterator - 3;
-                while (i <= iterator) {
-                    decodedMessage[i] = 0;
-                    i += 1;
-                }
-            }
+  iterator = 0;
 
-            polarity = decodedMessage[iterator];
-        }
-
-        iterator += 1;
+  while (iterator < decodedMessage.length) {
+    if (decodedMessage[iterator] === -1) {
+      decodedMessage[iterator] = 1;
     }
 
-    iterator = 0;
+    iterator += 1;
+  }
 
-    while (iterator < decodedMessage.length) {
-        if (decodedMessage[iterator] === -1) {
-            decodedMessage[iterator] = 1;
-        }
-
-        iterator += 1;
-    }
-
-    return decodedMessage;
+  return decodedMessage;
 }
 
 module.exports = {
-    decode,
-  };
+  decode,
+};

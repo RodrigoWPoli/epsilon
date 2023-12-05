@@ -51,19 +51,16 @@ const MessageForm = () => {
       .map((char) => char.charCodeAt(0).toString(2).padStart(8, "0"))
       .join("");
   };
-  const deBinarizeMessage = (text) => {
-    const binaryArray = text.split(" ");
-
-    // Convert each 8-bit binary byte to its decimal equivalent and then to a character
-    const textArray = binaryArray.map((binaryByte) => {
-      const decimalValue = parseInt(binaryByte, 2);
-      return String.fromCharCode(decimalValue);
-    });
-
-    // Join the characters to form the original text
-    const originalText = textArray.join("");
-
-    return originalText;
+  const deBinarizeMessage = (data) => {
+    const text = data.decodedData.join("")
+    if (!/^[01]+$/.test(text)) {
+      console.log(text)
+      throw new Error("Invalid binary string. It should only contain 0s and 1s.");
+  }
+  const binaryChunks = text.match(/.{1,8}/g);
+  const decimalChars = binaryChunks.map((chunk) => parseInt(chunk, 2));
+  const asciiText = String.fromCharCode(...decimalChars);
+  return asciiText;
   };
 
   const sendMessage = async (message) => {
@@ -86,13 +83,14 @@ const MessageForm = () => {
     }
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     const encryptedMessage = encryptMessage(message);
     const binaryMessage = binarizeMessage(encryptedMessage);
-    const encodedMessage = sendMessage(binaryMessage);
+    const encodedMessage = await sendMessage(binaryMessage);
+
 
     //receive from backend
-    const deBinarizedMessage = deBinarizeMessage(binaryMessage);
+    const deBinarizedMessage = deBinarizeMessage(encodedMessage);
     const decryptedMessage = decryptMessage(deBinarizedMessage);
     setEncryptedMessage(encryptedMessage);
     setBinaryMessage(binaryMessage);
