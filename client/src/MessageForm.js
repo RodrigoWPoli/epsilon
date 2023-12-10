@@ -1,29 +1,7 @@
 import React, { useEffect, useState } from "react";
 import CryptoJS from "crypto-js";
-import GraphComponent from "./Graph";
 
 const MessageForm = () => {
-  const [backendData, setBackendData] = useState();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("/api");
-        const data = await response.json();
-        setBackendData(data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-    fetchData();
-
-    // Set up an interval to fetch data every, for example, 5000 milliseconds (5 seconds)
-    const intervalId = setInterval(fetchData, 3000);
-
-    // Clean up the interval when the component unmounts or when you want to stop fetching
-    return () => clearInterval(intervalId);
-  }, []);
-
   const [message, setMessage] = useState("");
   const [displayedMessage, setDisplayedMessage] = useState("");
   const [encryptedMessage, setEncryptedMessage] = useState("");
