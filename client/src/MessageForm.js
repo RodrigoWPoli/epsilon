@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import CryptoJS from "crypto-js";
+import GraphComponent from "./Graph";
 
 const MessageForm = () => {
   const [backendData, setBackendData] = useState();
@@ -28,7 +29,7 @@ const MessageForm = () => {
   const [encryptedMessage, setEncryptedMessage] = useState("");
   const [encodedMessage, setEncodedMessage] = useState("");
   const [binaryMessage, setBinaryMessage] = useState("");
-  const secretKey = "your-secret-key"; // Replace with a secure method for key exchange
+  const secretKey = "epsilon"; // Replace with a secure method for key exchange
 
   const handleMessageChange = (e) => {
     setMessage(e.target.value);
@@ -90,12 +91,13 @@ const MessageForm = () => {
 
 
     //receive from backend
-    const deBinarizedMessage = deBinarizeMessage(encodedMessage);
-    const decryptedMessage = decryptMessage(deBinarizedMessage);
+    //const deBinarizedMessage = deBinarizeMessage(encodedMessage);
+    //const decryptedMessage = decryptMessage(deBinarizedMessage);
     setEncryptedMessage(encryptedMessage);
     setBinaryMessage(binaryMessage);
-    setDisplayedMessage(decryptedMessage);
-    setEncodedMessage(encodedMessage)
+    //setDisplayedMessage(decryptedMessage);
+    setEncodedMessage(encodedMessage);
+    console.log(encodedMessage.encodedData[1])
     setMessage("");
   };
   const styles = {
@@ -111,7 +113,7 @@ const MessageForm = () => {
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>
       <div>
-        <div style={{ margin: "20px auto" }}>backendData</div>
+        <div style={{ margin: "20px auto" }}>Message:</div>
         <input
           type="text"
           placeholder="Write a message..."
