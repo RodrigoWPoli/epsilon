@@ -1,34 +1,14 @@
 import React, { useEffect, useState } from "react";
 import CryptoJS from "crypto-js";
+import axios from 'axios';
 
 const MessageForm = () => {
-  const [backendData, setBackendData] = useState();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("/api");
-        const data = await response.json();
-        setBackendData(data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-    fetchData();
-
-    // Set up an interval to fetch data every, for example, 5000 milliseconds (5 seconds)
-    const intervalId = setInterval(fetchData, 3000);
-
-    // Clean up the interval when the component unmounts or when you want to stop fetching
-    return () => clearInterval(intervalId);
-  }, []);
-
   const [message, setMessage] = useState("");
   const [displayedMessage, setDisplayedMessage] = useState("");
   const [encryptedMessage, setEncryptedMessage] = useState("");
   const [encodedMessage, setEncodedMessage] = useState("");
   const [binaryMessage, setBinaryMessage] = useState("");
-  const secretKey = "your-secret-key"; // Replace with a secure method for key exchange
+  const secretKey = "epsilon"; // Replace with a secure method for key exchange
 
   const handleMessageChange = (e) => {
     setMessage(e.target.value);
@@ -52,33 +32,43 @@ const MessageForm = () => {
       .join("");
   };
   const deBinarizeMessage = (data) => {
-    const text = data.decodedData.join("")
+    console.log(data)
+    const text = data.join("");
     if (!/^[01]+$/.test(text)) {
-      console.log(text)
-      throw new Error("Invalid binary string. It should only contain 0s and 1s.");
-  }
-  const binaryChunks = text.match(/.{1,8}/g);
-  const decimalChars = binaryChunks.map((chunk) => parseInt(chunk, 2));
-  const asciiText = String.fromCharCode(...decimalChars);
-  return asciiText;
+      console.log(text);
+      throw new Error(
+        "Invalid binary string. It should only contain 0s and 1s."
+      );
+    }
+    const binaryChunks = text.match(/.{1,8}/g);
+    const decimalChars = binaryChunks.map((chunk) => parseInt(chunk, 2));
+    const asciiText = String.fromCharCode(...decimalChars);
+    return asciiText;
   };
 
   const sendMessage = async (message) => {
     try {
-      // Send the binary message to the backend
-      const response = await fetch("/api/encode", {
+      const response = await fetch("/api/send", {
         method: "POST",
         headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          Accept: "application/json",
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({message}),
+        body: JSON.stringify({ message }),
       });
 
-      // Handle the response from the backend as needed
       const data = await response.json();
       return data;
     } catch (error) {
+      throw error;
+    }
+  };
+  const receiveMessage = async () => {
+    try {
+      const response = await axios.get('/api/receive');
+      return response.data;
+    } catch (error) {
+      console.error('Error receiving message:', error);
       throw error;
     }
   };
@@ -88,14 +78,21 @@ const MessageForm = () => {
     const binaryMessage = binarizeMessage(encryptedMessage);
     const encodedMessage = await sendMessage(binaryMessage);
 
+    setEncryptedMessage(encryptedMessage);
+    setBinaryMessage(binaryMessage);
+    setEncodedMessage(encodedMessage);
+    setMessage("");
+  };
 
-    //receive from backend
-    const deBinarizedMessage = deBinarizeMessage(encodedMessage);
+  const handleReceiveMessage = async () => {
+    const data = await receiveMessage();
+    console.log(data)
+    const deBinarizedMessage = deBinarizeMessage(data.decodedData);
     const decryptedMessage = decryptMessage(deBinarizedMessage);
     setEncryptedMessage(encryptedMessage);
     setBinaryMessage(binaryMessage);
     setDisplayedMessage(decryptedMessage);
-    setEncodedMessage(encodedMessage)
+    setEncodedMessage(data.receivedData);
     setMessage("");
   };
   const styles = {
@@ -111,7 +108,7 @@ const MessageForm = () => {
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>
       <div>
-        <div style={{ margin: "20px auto" }}>backendData</div>
+        <div style={{ margin: "20px auto" }}>Message:</div>
         <input
           type="text"
           placeholder="Write a message..."
@@ -136,6 +133,18 @@ const MessageForm = () => {
       <div style={styles.messageContainer}>{encryptedMessage}</div>
       <div style={{ margin: "20px auto" }}>binary message:</div>
       <div style={styles.messageContainer}>{binaryMessage}</div>
+      <button
+        onClick={handleReceiveMessage}
+        style={{
+          padding: "10px",
+          backgroundColor: "#4CAF50",
+          color: "white",
+          border: "none",
+          cursor: "pointer",
+        }}
+      >
+        Receive Message
+      </button>
       <div style={{ margin: "20px auto" }}>Message received:</div>
       <div style={styles.messageContainer}>{displayedMessage}</div>
     </div>

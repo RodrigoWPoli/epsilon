@@ -3,28 +3,29 @@ const router = express.Router();
 var bodyParser = require('body-parser');
 const hdb3Encoder = require('../hdb3/hdb3Encoder');
 const hdb3Decoder = require('../hdb3/hdb3Decoder');
-
-const http = require('http');
-const WebSocket = require('ws');
-
-const app = express();
-const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
+const network = require('../network');
 
 var jsonParser = bodyParser.json()
 
-router.post('/encode', jsonParser, (req, res) => {
+router.post('/send', jsonParser, (req, res) => {
   const binaryData = req.body.message;
   const encodedData = hdb3Encoder.encode(binaryData);
-  //sendOverLAN(encodedData[0]);
-  const decodedData = hdb3Decoder.decode(encodedData[0]);
-  res.json({ decodedData });
+  sendMessage(encodedData[0]);
+  res.json({ encodedData });
 });
 
-function sendOverLAN(data) {
-    // Use HTTP request or other suitable method to send data over LAN
-    // Example: axios.post('http://other-pc-ip:backend-port', { data });
+router.get('/receive', async (req, res) => {
+  const port = "7878"
+  network.receiveMessage(port, (receivedData) => {
+    const decodedData = hdb3Decoder.decode(receivedData);
+    res.json({ receivedData, decodedData });
+  });
+});
 
-  }
+function sendMessage(data) {
+  const host = "0.0.0.0";
+  const port = "7878"
+  network.sendMessage(host, port, data);
+}
 
 module.exports = router;
