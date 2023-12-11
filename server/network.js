@@ -1,18 +1,24 @@
-const net = require('net');
+const http = require('http');
 
 function receiveMessage(port, callback) {
-  const server = net.createServer((socket) => {
-    console.log(`Client connected: ${socket.remoteAddress}:${socket.remotePort}`);
-    socket.on('data', (data) => {
-      console.log(`Received message from client: ${data}`);
-      callback(data.toString());
-      server.close();
-    });
-    socket.on('end', () => {
-      console.log('Client disconnected');
-    });
+  const server = http.createServer((req, res) => {
+    if (req.method === 'POST') {
+      let data = '';
+      req.on('data', chunk => {
+        data += chunk;
+      });
+
+      req.on('end', () => {
+        console.log(`Received message from client: ${data}`);
+        callback(data);
+        res.end('Message received successfully');
+      });
+    } else {
+      res.end('Invalid request');
+    }
   });
-  server.listen(port, () => {
+
+  server.listen(port, '0.0.0.0', () => {
     console.log(`Server listening on port ${port}`);
   });
 
@@ -20,9 +26,35 @@ function receiveMessage(port, callback) {
 }
 
 function sendMessage(host, port, message) {
-  const client = net.createConnection({host, port}, () => {
-    client.write(message);
+  const options = {
+    hostname: host,
+    port: port,
+    path: '/send-message',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'text/plain',
+      'Content-Length': Buffer.byteLength(message),
+    },
+  };
+
+  const req = http.request(options, (res) => {
+    let data = '';
+
+    res.on('data', (chunk) => {
+      data += chunk;
+    });
+
+    res.on('end', () => {
+      console.log(`Received response from server: ${data}`);
+    });
   });
+
+  req.on('error', (error) => {
+    console.error('Error:', error.message);
+  });
+
+  req.write(message);
+  req.end();
 }
 
 module.exports = {
