@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import CryptoJS from "crypto-js";
-import axios from 'axios';
+import axios from "axios";
+import LineChart from "./Graph";
 
 const MessageForm = () => {
   const [message, setMessage] = useState("");
@@ -8,7 +9,8 @@ const MessageForm = () => {
   const [encryptedMessage, setEncryptedMessage] = useState("");
   const [encodedMessage, setEncodedMessage] = useState("");
   const [binaryMessage, setBinaryMessage] = useState("");
-  const secretKey = "epsilon"; // Replace with a secure method for key exchange
+  const [receiveButtonClicked, setReceiveButtonClicked] = useState(false);
+  const secretKey = "epsilon"; // encryption key
 
   const handleMessageChange = (e) => {
     setMessage(e.target.value);
@@ -32,10 +34,8 @@ const MessageForm = () => {
       .join("");
   };
   const deBinarizeMessage = (data) => {
-    console.log(data)
     const text = data.join("");
     if (!/^[01]+$/.test(text)) {
-      console.log(text);
       throw new Error(
         "Invalid binary string. It should only contain 0s and 1s."
       );
@@ -44,6 +44,22 @@ const MessageForm = () => {
     const decimalChars = binaryChunks.map((chunk) => parseInt(chunk, 2));
     const asciiText = String.fromCharCode(...decimalChars);
     return asciiText;
+  };
+
+  const binaryEncoding = (data) => {
+    const bitArray = [];
+
+    for (const bit of data) {
+      if (bit === "+") {
+        bitArray.push(1);
+      } else if (bit === "-") {
+        bitArray.push(-1);
+      } else {
+        bitArray.push(0);
+      }
+    }
+    const decodedMessage = [...bitArray];
+    return decodedMessage;
   };
 
   const sendMessage = async (message) => {
@@ -58,17 +74,18 @@ const MessageForm = () => {
       });
 
       const data = await response.json();
-      return data;
+      return data.encodedData[1];
     } catch (error) {
       throw error;
     }
   };
+
   const receiveMessage = async () => {
     try {
-      const response = await axios.get('/api/receive');
+      const response = await axios.get("/api/receive");
       return response.data;
     } catch (error) {
-      console.error('Error receiving message:', error);
+      console.error("Error receiving message:", error);
       throw error;
     }
   };
@@ -85,15 +102,21 @@ const MessageForm = () => {
   };
 
   const handleReceiveMessage = async () => {
-    const data = await receiveMessage();
-    console.log(data)
-    const deBinarizedMessage = deBinarizeMessage(data.decodedData);
-    const decryptedMessage = decryptMessage(deBinarizedMessage);
-    setEncryptedMessage(encryptedMessage);
-    setBinaryMessage(binaryMessage);
-    setDisplayedMessage(decryptedMessage);
-    setEncodedMessage(data.receivedData);
-    setMessage("");
+    try {
+      setReceiveButtonClicked(true);
+
+      const data = await receiveMessage();
+      const deBinarizedMessage = deBinarizeMessage(data.decodedData);
+      const decryptedMessage = decryptMessage(deBinarizedMessage);
+
+      setEncryptedMessage(deBinarizedMessage);
+      setBinaryMessage(data.decodedData);
+      setDisplayedMessage(decryptedMessage);
+      setEncodedMessage(binaryEncoding(data.receivedData));
+      setMessage("");
+    } finally {
+      setReceiveButtonClicked(false);
+    }
   };
   const styles = {
     messageContainer: {
@@ -137,7 +160,7 @@ const MessageForm = () => {
         onClick={handleReceiveMessage}
         style={{
           padding: "10px",
-          backgroundColor: "#4CAF50",
+          backgroundColor: receiveButtonClicked ? "#3498db" : "#4CAF50",
           color: "white",
           border: "none",
           cursor: "pointer",
@@ -147,8 +170,13 @@ const MessageForm = () => {
       </button>
       <div style={{ margin: "20px auto" }}>Message received:</div>
       <div style={styles.messageContainer}>{displayedMessage}</div>
+      <div style={{ margin: "20px auto" }}>Graph:</div>
+      {encodedMessage && (
+        <div>
+          <LineChart data={encodedMessage} />
+        </div>
+      )}
     </div>
   );
 };
-
 export default MessageForm;

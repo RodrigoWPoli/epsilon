@@ -10,7 +10,6 @@ function decode(message) {
       bitArray.push(0);
     }
   }
-
   const decodedMessage = [...bitArray];
   let polarity = 0;
   let iterator = 0;

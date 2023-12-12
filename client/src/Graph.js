@@ -1,34 +1,26 @@
 import React from 'react';
-import { Bar } from 'react-chartjs-2';
+import Bar from 'react-plotly.js';
 
-const GraphComponent = ({ data }) => {
-  // Assuming data is an array of -1, 0, and 1 values
-  const chartData = {
-    labels: data.map((_, index) => `Data ${index + 1}`),
-    datasets: [
-      {
-        label: 'Graph Data',
-        backgroundColor: 'rgba(75,192,192,0.2)',
-        borderColor: 'rgba(75,192,192,1)',
-        borderWidth: 1,
-        hoverBackgroundColor: 'rgba(75,192,192,0.4)',
-        hoverBorderColor: 'rgba(75,192,192,1)',
-        data: data,
-      },
-    ],
-  };
-
-  const chartOptions = {
-    scales: {
-      y: {
-        beginAtZero: true,
-        min: -1,
-        max: 1,
-      },
+const LineChart = ({ data }) => {
+  const plotData = [
+    {
+      type: 'line',
+      y: data,
     },
+  ];
+
+  const plotLayout = {
+    width: data.length * 10, // Adjust the width of the chart
+    height: 400, // Set the desired height of the chart
   };
 
-  return <Bar data={chartData} options={chartOptions} />;
+  return (
+    <Bar
+      data={plotData}
+      layout={plotLayout}
+      config={{ responsive: true }}
+    />
+  );
 };
 
-export default GraphComponent;
+export default LineChart;
