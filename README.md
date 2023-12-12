@@ -1,5 +1,7 @@
 # Data comunications final project at UTFPR
 
+Have node.js 16+ installed  
+
 ## installation:
 
 git clone  
