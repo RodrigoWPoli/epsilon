@@ -23,9 +23,7 @@ router.get('/receive', async (req, res) => {
 });
 
 function sendMessage(data) {
-  const host = "0.0.0.0";
-  const port = "7878"
-  network.sendMessage(host, port, data);
+  network.sendMessage(data);
 }
 
 module.exports = router;

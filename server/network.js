@@ -25,7 +25,9 @@ function receiveMessage(port, callback) {
   return server;
 }
 
-function sendMessage(host, port, message) {
+function sendMessage(message) {
+  const host = "192.168.18.27";
+  const port = "7878"
   const options = {
     hostname: host,
     port: port,
