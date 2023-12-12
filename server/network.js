@@ -13,6 +13,9 @@ function receiveMessage(port, callback) {
         callback(data);
         res.end('Message received successfully');
       });
+      server.close(() => {
+        console.log(`Server stopped listening on port ${port}`);
+      });
     } else {
       res.end('Invalid request');
     }
@@ -26,7 +29,8 @@ function receiveMessage(port, callback) {
 }
 
 function sendMessage(message) {
-  const host = "192.168.18.27";
+  //const host = "192.168.18.27"; // notebook do tiba
+   const host = "172.22.117.39";// notebook da ana
   const port = "7878"
   const options = {
     hostname: host,
