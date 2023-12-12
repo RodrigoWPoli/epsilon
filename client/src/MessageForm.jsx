@@ -1,7 +1,7 @@
 import { useState } from "react";
 import CryptoJS from "crypto-js";
 import axios from "axios";
-import LineChart from "./Graph";
+import LineChart from "./Graph.jsx";
 
 const MessageForm = () => {
   const [message, setMessage] = useState("");
