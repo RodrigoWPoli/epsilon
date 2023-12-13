@@ -10,8 +10,8 @@ const LineChart = ({ data }) => {
   ];
 
   const plotLayout = {
-    width: data.length * 10, // Adjust the width of the chart
-    height: 400, // Set the desired height of the chart
+    width: data.length * 10, 
+    height: 400, 
   };
 
   return (
