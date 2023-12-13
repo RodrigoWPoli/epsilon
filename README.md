@@ -1,4 +1,5 @@
 # Data comunications final project at UTFPR
+Author: Rodrigo Wolsky Poli  
 
 Have node.js 16+ installed  
 
@@ -22,3 +23,4 @@ cd server
 npm install  
 
 ### `npm run dev`
+

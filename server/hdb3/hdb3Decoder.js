@@ -11,7 +11,7 @@ function decode(message) {
     }
   }
   const decodedMessage = [...bitArray];
-  let polarity = 0;
+  let polarity = -1;
   let iterator = 0;
 
   while (iterator < bitArray.length) {
