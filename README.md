@@ -24,3 +24,8 @@ npm install
 
 ### `npm run dev`
 
+## In order to run:  
+
+change the ip in server.js to the other pc ip  
+hit receive message to run the server that checks for messages  
+send message
