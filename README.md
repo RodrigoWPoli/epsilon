@@ -26,6 +26,6 @@ npm install
 
 ## In order to run:  
 
-change the ip in server.js to the other pc ip  
+change the ip in network.js to the other pc ip  
 hit receive message to run the server that checks for messages  
 send message
