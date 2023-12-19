@@ -17,7 +17,7 @@ function encode(message) {
     let hdb3Message = [...amiMessage];
 
     let zerosCounter = 0;
-    let polarity = 0;
+    let polarity = -1;
     let iterator = 0;
 
     for (const bit of amiMessage) {
